@@ -1,0 +1,41 @@
+CODE COMPREHENSION:
+
+
+                                      in AdvisorCourseRequestLine class:
+
+
+The CourseSelectionBox allows the user to select a course. The ImageButton serves as a delete button to remove a course selection. The UniTimeTextBox allows the user to enter the number of credits for the selected course. The TextArea allows the user to enter notes about the selected course. The CheckBox components indicate whether the course selection is critical or waitlisted, depending on the context.
+also it manages course selection boxes. The "up" and "down" methods swap the position of the current box with the one above or below it. "computeCredits" calculates the minimum and maximum credits among the selected courses and updates a text field accordingly. "getCreditMin" and "getCreditMax" parse the minimum and maximum credit values from the text field. "getCourses" returns a list of CourseSelectionBox objects. "fixTitles" updates the titles and labels of the boxes and resizes the interface to accommodate notes. "resizeNotes" resizes the interface to accommodate notes. "isAlternate" checks if a box is an alternate selection, "getPriority" returns the priority of a box, "delete" deletes a box and its alternates, "deleteAlternative" deletes an alternate selection, and "insertAlternative" inserts a new alternate selection.
+
+ADDITIONS:
+
+public void clearSelections() {
+    for (CourseSelectionBox box : iCourses) {
+        box.setValue(null);
+    }
+}
+
+This function loops through the list of CourseSelectionBox objects stored in the iCourses field and sets the value of each box to null. This effectively clears all the selected courses in the course selection box.
+
+ add this function to the class and call it when you want to clear the selected courses. For example, you could add a button to the user interface that calls this function when clicked.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                                          in AdvisorCourseRequestPage class:
+
+This code is for a web page that allows an academic advisor to view and manage course requests for their advisees. The constructor sets up the page layout and initializes various widgets and components, including a header with buttons for looking up students, exporting data, and submitting changes. The main part of the code is the event handler for changes to the academic session selector. When the academic session is changed, the handler retrieves updated data for the student from the server using the "StudentSectioningService" API and updates the user interface with the new data. This includes updating the student's name, ID, email, and course requests, as well as enabling or disabling certain buttons based on the advisor's permissions. The code also handles errors and displays appropriate messages to the user. Overall, the code provides a user-friendly interface for academic advisors to manage their advisees' course requests and navigate through different academic sessions.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                                               in CurriculaCourses class:
+
+it manages a UniTime table widget and provides methods for linking it to a CurriculaClassifications object. The constructor initializes the table and sets up a course selection handler to update the table when a course is selected. The link method connects the CurriculaCourses object to a CurriculaClassifications object, registers event handlers to update the table when expected values or column names change, and sets the visibility of table columns based on the expected values. The HintProvider interface is used to create a hint for the selected cell in the table, which displays a StudentsTable widget if a valid row is selected. The saveCurriculum method iterates through the rows of the table, creates a CourseInterface object for each row, sets the course name and curriculum course data for each classification, and adds the course to the CurriculumInterface object. The hasDefaultShare method checks if a given row has a default share value set for any classification. The populateTemplate method populates the UniTime table with the data from a given CurriculumInterface object, creates CourseInterface objects for each unique course name, sets the curriculum course data for each classification, and adds the course to the CurriculumInterface object. The populate method updates the table with the new data. Overall, the CurriculaCourses class serves as a bridge between the course selection functionality and the management of curriculum data for UniTime.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                                                in StudentScheduleTable class:
+
+
+generates a table displaying the course schedule of a student. The table contains information about the courses, such as the subject, course number, subpart, class section, meeting time, date, room, instructor, parent section, note, and credit. The class has methods for inserting the table into a web page, setting the student whose schedule is being displayed, clearing the table, refreshing the table with updated data from a server, and populating the table with data retrieved from the server. It also has buttons for registering for courses, accessing student assistant features, and viewing a change log of the student's schedule. The constructor takes parameters for showing a header, indicating if the schedule is online, and showing teaching assignments.
