@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.springframework.lang.NonNull;
 import org.unitime.timetable.gwt.client.Lookup;
 import org.unitime.timetable.gwt.client.ToolBox;
 import org.unitime.timetable.gwt.client.aria.AriaButton;
@@ -126,9 +127,17 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 	public static final StudentSectioningConstants CONSTANTS = GWT.create(StudentSectioningConstants.class);
 	private static DateTimeFormat sDF = DateTimeFormat.getFormat(CONSTANTS.requestDateFormat());
 	private static DateTimeFormat sTSF = DateTimeFormat.getFormat(CONSTANTS.timeStampFormat());
-	private UniTimeHeaderPanel header, footer;
+	//make them in separate lines
+    private UniTimeHeaderPanel header;
+	private UniTimeHeaderPanel footer;
+
 	private Lookup iLookupDialog = null;
-	private Label iStudentName, iStudentExternalId, iTerm, iStudentEmail;
+	//make them in separate lines
+	private Label iStudentName;
+	private Label iStudentExternalId;
+	private Label iTerm;
+	private Label iStudentEmail;
+
 	private Label iAdvisorEmail = null;
 	private AdvisorAcademicSessionSelector iSession = null;
 	private SpecialRegistrationContext iSpecRegCx = null;
@@ -188,13 +197,16 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 				}
 			}
 		});
-		header.addButton("print", MESSAGES.buttonExportPdf(), new ClickHandler() {
+		//make it constant
+		final String PRINT = "print";  
+
+		header.addButton(PRINT, MESSAGES.buttonExportPdf(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				submit();
 			}
 		});
-		header.setEnabled("print", false);
+		header.setEnabled(PRINT, false);
 		header.addButton("submit", MESSAGES.buttonSubmitPrint(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -228,7 +240,7 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 				iContext.setStudentId(null);
 				iLookupDialog.setOptions("mustHaveExternalId,source=students,session=" + event.getNewAcademicSessionId());
 				header.setEnabled("submit", false);
-				header.setEnabled("print", false);
+				header.setEnabled(PRINT, false);
 				iDegreePlan.setVisible(false); iDegreePlan.setEnabled(false);
 				iEmailConfirmationHeader.setVisible(false);
 				iEmailConfirmationFooter.setVisible(false);
@@ -236,14 +248,16 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 				hideLastNotes();
 				LoadingWidget.getInstance().show(MESSAGES.loadingAdvisorRequests(iStudentName.getText()));
 				sSectioningService.getStudentAdvisingDetails(iSession.getAcademicSessionId(), iStudentExternalId.getText(), new AsyncCallback<AdvisingStudentDetails>() {
+					//BUG
 					@Override
-					public void onSuccess(AdvisingStudentDetails result) {
+					public void onSuccess(@NonNull AdvisingStudentDetails  result) {
 						LoadingWidget.getInstance().hide();
 						iDetails = result;
 						iContext.setStudentId(iDetails == null ? null : iDetails.getStudentId());
 						iSpecRegCx.setCanRequire(iDetails == null || iDetails.isCanRequire());
+						//could throw null exception
 						header.setEnabled("submit", result.isCanUpdate());
-						header.setEnabled("print", !result.isCanUpdate());
+						header.setEnabled(PRINT, !result.isCanUpdate());
 						if (result.isCanUpdate()) checkForLastNotes();
 						iDegreePlan.setVisible(result.isDegreePlan()); iDegreePlan.setEnabled(result.isDegreePlan());
 						iEmailConfirmationHeader.setVisible(result.isCanUpdate() && result.isCanEmail());
@@ -254,14 +268,17 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 						iStudentExternalId.setText(result.getStudentExternalId());
 						iAdvisorRequests.setMode(result.getWaitListMode());
 						String wlHeader = null;
-						switch (result.getWaitListMode()) {
-						case NoSubs:
+						//convert to if condition
+						if(result.getWaitListMode().equals("NoSubs"))
+						{
 							wlHeader = MESSAGES.headNoSubs();
-							break;
-						case WaitList:
-							wlHeader = MESSAGES.headWaitList();
-							break;
+
 						}
+						else if(result.getWaitListMode().equals("WaitList"))
+						{
+							wlHeader = MESSAGES.headWaitList();
+						}
+						
 						if (result.isCriticalCheckCritical()) {
 							wlHeader = (wlHeader == null ? MESSAGES.opSetCritical() : MESSAGES.opSetCritical() + "&nbsp;&nbsp;" + wlHeader);
 						} else if (result.isCriticalCheckImportant()) {
@@ -415,9 +432,9 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 		getRowFormatter().setVisible(iAdisorRequestsHeaderLine + 1, false);
 		
 		iSpecRegCx = new SpecialRegistrationContext();
-		
-		iCourses = new ArrayList<AdvisorCourseRequestLine>();
-		iAlternatives = new ArrayList<AdvisorCourseRequestLine>();
+		//change to <>
+		iCourses = new ArrayList<>();
+		iAlternatives = new ArrayList<>();
 		
 		UniTimeHeaderPanel requests = new UniTimeHeaderPanel(MESSAGES.advisorRequestsCourses());
 		requests.setMessage(MESSAGES.headCreditHoursNotes());
@@ -641,14 +658,15 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 					String term = Location.getParameter("term");
 					if (term != null && !matchTerm(info, term)) return false;
 					String session = Location.getParameter("session");
-					if (session != null && !matchSession(info, session)) return false;
-					return true;
+					//change it to single return
+					return (session != null && !matchSession(info, session)) ? false : true;
+				
 				}
 			}, new AsyncCallback<Boolean>() {
 				@Override
-				public void onFailure(Throwable caught) {}
+				public void onFailure(Throwable caught) {throw new UnsupportedOperationException();}
 				@Override
-				public void onSuccess(Boolean result) {}
+				public void onSuccess(Boolean result) {throw new UnsupportedOperationException();}
 			});
 		} else if (Window.Location.getHash() != null && !Window.Location.getHash().isEmpty()) {
 			loadStudent(Window.Location.getHash().substring(1));
@@ -779,10 +797,10 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 			public void onFailure(Throwable caught) {}
 		});
 	}
-	
+	final String PRINT2="print";
 	protected void loadStudent(String studentId) {
 		header.setEnabled("submit", false);
-		header.setEnabled("print", false);
+		header.setEnabled(PRINT2, false);
 		hideLastNotes();
 		iDegreePlan.setVisible(false); iDegreePlan.setEnabled(false);
 		iEmailConfirmationHeader.setVisible(false);
@@ -934,7 +952,7 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 			iStudentEmail.setText("");
 			iTerm.setText("");
 			header.setEnabled("submit", false);
-			header.setEnabled("print", false);
+			header.setEnabled(PRINT2, false);
 			iDegreePlan.setVisible(false); iDegreePlan.setEnabled(false);
 			iEmailConfirmationHeader.setVisible(false);
 			iEmailConfirmationFooter.setVisible(false);
@@ -983,7 +1001,7 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 		
 		public void selectSessionNoCheck() {
 			header.setEnabled("submit", false);
-			header.setEnabled("print", false);
+			header.setEnabled(PRINT2, false);
 			iDegreePlan.setVisible(false); iDegreePlan.setEnabled(false);
 			iEmailConfirmationHeader.setVisible(false);
 			iEmailConfirmationFooter.setVisible(false);
@@ -1017,12 +1035,16 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 	public void setRequest(CourseRequestInterface request) {
 		clearRequests();
 		if (request != null) {
-			while (iCourses.size() < request.getCourses().size()) addCourseLine();
+			//adding curly brackets
+			while (iCourses.size() < request.getCourses().size()) { addCourseLine(); }
 			for (int idx = 0; idx < request.getCourses().size(); idx++)
+			{
 				iCourses.get(idx).setValue(request.getCourses().get(idx), true);
-			while (iAlternatives.size() < request.getAlternatives().size()) addAlternativeLine();;
+			}	
+			//removing the 2nd semicolon
+			while (iAlternatives.size() < request.getAlternatives().size()) { addAlternativeLine(); }
 			for (int idx = 0; idx < request.getAlternatives().size(); idx++)
-				iAlternatives.get(idx).setValue(request.getAlternatives().get(idx), true);
+			{	iAlternatives.get(idx).setValue(request.getAlternatives().get(idx), true); }
 			if (request.hasCreditNote()) {
 				iNotes.setText(request.getCreditNote());
 				resizeNotes();
@@ -1168,9 +1190,10 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 						public void onFailure(Throwable caught) {}
 						@Override
 						public void onSuccess(Boolean accept) {
-							if (accept && it.hasNext()) {
+							//translates from if (accept) to  Boolean.TRUE.equals(accept)
+							if (Boolean.TRUE.equals(accept) && it.hasNext()) {
 								CourseRequestsConfirmationDialog.confirm(result, it.next(), this);
-							} else if (accept) {
+							} else if (Boolean.TRUE.equals(accept)) {
 								save(details);
 							}
 						}
@@ -1331,7 +1354,17 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 						}
 						if (status.isEmpty()) status = MESSAGES.reqStatusRegistered();
 						if (prefs != null) hasPref = true;
-						WebTable.Cell credit = new WebTable.Cell(rc.hasCredit() ? (rc.getCreditMin().equals(rc.getCreditMax()) ? df.format(rc.getCreditMin()) : df.format(rc.getCreditMin()) + " - " + df.format(rc.getCreditMax())) : "");
+						//Extract the nested ternary operation into an independent statement. if-else
+						String creditValue = "";
+						if (rc.hasCredit()) {
+						    if (rc.getCreditMin().equals(rc.getCreditMax())) {
+						        creditValue = df.format(rc.getCreditMin());
+						    } else {
+						        creditValue = df.format(rc.getCreditMin()) + " - " + df.format(rc.getCreditMax());
+						    }
+						}
+						WebTable.Cell credit = new WebTable.Cell(creditValue);
+						
 						credit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 						String note = null, noteTitle = null;
 						if (check != null) { note = check.getMessageWithColor(rc.getCourseName(), "<br>", "CREDIT"); noteTitle = check.getMessage(rc.getCourseName(), "\n", "CREDIT"); }
@@ -1358,12 +1391,18 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 							for (WebTable.Cell cell: row.getCells()) cell.setStyleName("top-border-dashed");
 						rows.add(row);
 					} else if (rc.isFreeTime()) {
-						String  free = "";
-						for (FreeTime ft: rc.getFreeTime()) {
-							if (!free.isEmpty()) free += ", ";
-							free += ft.toString(CONSTANTS.shortDays(), CONSTANTS.useAmPm());
+						//use string Builder instead
+						StringBuilder freeBuilder = new StringBuilder();
+						for (FreeTime ft : rc.getFreeTime()) {
+						    if (freeBuilder.length() != 0) {
+						        freeBuilder.append(", ");
+						    }
+						    freeBuilder.append(ft.toString(CONSTANTS.shortDays(), CONSTANTS.useAmPm()));
 						}
-						String note = null, noteTitle = null;
+						String free = freeBuilder.toString();
+						//make them in separate lines
+						String note = null;
+						String noteTitle = null;
 						if (check != null) {
 							note = check.getMessageWithColor(CONSTANTS.freePrefix() + free, "<br>");
 							noteTitle = check.getMessage(CONSTANTS.freePrefix() + free, "\n", "CREDIT");
@@ -1664,8 +1703,8 @@ public class AdvisorCourseRequestsPage extends SimpleForm implements TakesValue<
 				for (AdvisorNote note: notes)
 					addRow(note);
 		}
-		
-		public static enum Column {
+		//nested enum types are implicitly static.
+		public  enum Column {
 			DATE, NOTE, COUNT
 		}
 	}

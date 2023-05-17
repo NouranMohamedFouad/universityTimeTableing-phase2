@@ -689,6 +689,9 @@ public class AdvisorCourseRequestLine implements HasValue<Request> {
 		return failed;
 	}
 	
+	
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public class CourseSelectionBox extends CourseRequestBox {
 		private HandlerRegistration iCourseSelectionHandlerRegistration;
 		private FilterStatus iStatus;
@@ -1148,13 +1151,15 @@ public class AdvisorCourseRequestLine implements HasValue<Request> {
 	}
 	
 	/////////////////////////////////////////////////////////////////////
-   //                   adding feature here                           //                            
-  /////////////////////////////////////////////////////////////////////
+    //                   adding feature here                           //                            
+   /////////////////////////////////////////////////////////////////////
 	
-	// effectively clears all the selected courses in the course selection box.//
+   // effectively clears all the selected courses in the course selection box.//
 	
-	public void clearSelections() {
-	    for (CourseSelectionBox box : iCourses) {
+	public void clearSelections()
+	{
+	    for (CourseSelectionBox box : iCourses) 
+	    {
 	        box.setValue(null);
 	    }
 	}
